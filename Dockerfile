@@ -1,5 +1,5 @@
 # 构建阶段：处理插件和元数据
-FROM python:3.11-alpine AS builder
+FROM higress-registry.cn-hangzhou.cr.aliyuncs.com/higress/python:3.11-alpine AS builder
 
 # 安装系统依赖
 RUN apk add --no-cache \
