@@ -1,5 +1,4 @@
 # Higress Plugin Server
-=======
 
 HTTP server for Higress Wasm plugins
 
