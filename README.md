@@ -27,6 +27,69 @@ docker buildx build \
 docker run -d --name higress-plugin-server --rm -p 8080:8080 higress-plugin-server:1.0.0
 ```
 
+## K8s 部署 plugin-server
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: higress-plugin-server
+  namespace: higress-system
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: higress-plugin-server
+      higress: higress-plugin-server
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  progressDeadlineSeconds: 600
+  revisionHistoryLimit: 10
+  template:
+    metadata:
+      labels:
+        app: higress-plugin-server
+        higress: higress-plugin-server
+    spec:
+      containers:
+        - name: higress-core
+          image: higress-registry.cn-hangzhou.cr.aliyuncs.com/higress/plugin-server:1.0.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "200m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: higress-plugin-server
+  namespace: higress-system
+  labels:
+    app: higress-plugin-server
+    higress: higress-plugin-server
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: higress-plugin-server
+    higress: higress-plugin-server
+```
+
+
 ## 配置插件地址
 
 ### 在 Higress Console 中配置插件下载地址
