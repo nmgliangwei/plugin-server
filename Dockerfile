@@ -1,5 +1,8 @@
 # 构建阶段：处理插件和元数据
-FROM higress-registry.cn-hangzhou.cr.aliyuncs.com/higress/python:3.11-alpine AS builder
+ARG PYTHON_IMAGE=higress-registry.cn-hangzhou.cr.aliyuncs.com/higress/python:3.11-alpine
+ARG NGINX_IMAGE=higress-registry.cn-hangzhou.cr.aliyuncs.com/higress/nginx:alpine
+
+FROM $PYTHON_IMAGE AS builder
 
 # 安装系统依赖
 RUN apk add --no-cache \
@@ -26,7 +29,7 @@ COPY pull_plugins.py plugins.properties ./
 RUN python3 pull_plugins.py 
 
 # 运行阶段：最终镜像
-FROM docker.io/nginx:alpine
+FROM $NGINX_IMAGE
 
 # 从构建阶段复制生成的文件
 COPY --from=builder /workspace/plugins /usr/share/nginx/html/plugins
